@@ -1,0 +1,59 @@
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+#root {
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Nunito', 'Noto Sans JP', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: linear-gradient(160deg, #e0f0ff 0%, #f0e6ff 50%, #fce4f0 100%);
+  min-height: 100vh;
+}
+
+button {
+  cursor: pointer;
+  font-family: 'Nunito', 'Noto Sans JP', sans-serif;
+}
+
+button:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 3px;
+}
+
+input, textarea {
+  font-family: 'Nunito', 'Noto Sans JP', sans-serif;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes cloud-drift-a {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(40px); }
+}
+@keyframes cloud-drift-b {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(-50px); }
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-in { animation: page-in 0.35s ease-out; }
+
+button { transition: transform 0.12s ease; }
+button:active:not(:disabled) { transform: scale(0.96); }
+
+body { line-height: 1.5; }
+p, span, label { overflow-wrap: anywhere; }
