@@ -44,11 +44,15 @@ async function request(method, path, body = null) {
       : null,
   })
 
-  const data = await res.json()
+  const text = await res.text()
+  let data = null
+  try { data = text ? JSON.parse(text) : null } catch { data = null }
 
-  // エラーの場合は例外を投げる
   if (!res.ok) {
-    throw new Error(data.error || 'エラーが発生しました')
+    throw new Error((data && data.error) || `HTTP ${res.status}: ${text.slice(0, 80)}`)
+  }
+  if (data === null) {
+    throw new Error(`返事が空でした (HTTP ${res.status} / ${res.redirected ? '転送あり' : '転送なし'} / ${res.url})`)
   }
 
   return data
