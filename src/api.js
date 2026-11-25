@@ -1,6 +1,6 @@
 // ── APIサーバーのURL ──────────────────────────────────
 // メンバーBのExpressサーバーのアドレス
-export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+export const BASE_URL = import.meta.env.VITE_API_URL || 'https://hanauta-api.onrender.com'
 
 // ── トークン管理 ──────────────────────────────────────
 // ログイン後に受け取るJWTトークンを保存・取得・削除する関数
