@@ -92,10 +92,13 @@ function NavIcon({ name, color }) {
           <path d="M6 3h12v18l-6-4-6 4z" />
         </svg>
       )
-      case 'アカウント':
-        return user ? (
-          <AccountPage user={user} onLogout={handleLogout} onOpenThread={openThread} />
-        ) : null
+    case 'アカウント':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+        </svg>
+      )
     default:
       return null
   }
@@ -128,7 +131,7 @@ export default function App() {
       return null
     }
   })
-  const guestView = !user && !!getThreadIdFromUrl() && !needLogin
+
   const [page, setPage]                 = useState('ホーム')
   const [thread, setThread]             = useState(null)
   const [threadIndex, setThreadIndex]   = useState(0)
@@ -140,6 +143,8 @@ export default function App() {
     const [themeTitle, setThemeTitle] = useState('')
     const [showNotif, setShowNotif] = useState(false)
   const [needLogin, setNeedLogin] = useState(false)
+
+  const guestView = !user && !!getThreadIdFromUrl() && !needLogin
       async function openById(id) {
     try {
       const d = await getThread(id)
