@@ -83,7 +83,7 @@ const Cell = ({ user, i }) => (
     )
 }
 
-export default function ThreadPage({ post, index, onBack, onJoin, onSavePart, initialTab = 'パート' }) {
+export default function ThreadPage({ post, index, onBack, onJoin, onSavePart, initialTab = 'パート', guest = false, onNeedLogin = () => true }) {
     const [thread, setThread] = useState(null)
     const [parts, setParts] = useState([])
     const [comments, setComments] = useState([])
@@ -120,6 +120,7 @@ export default function ThreadPage({ post, index, onBack, onJoin, onSavePart, in
     useEffect(() => () => { mixRef.current.forEach((a) => a.pause()) }, [])
 
   async function handleLike(partId) {
+    if (guest) { onNeedLogin(); return }
     try {
       const r = await likePart(partId)
       // サーバーの結果で、いいね状態と件数を更新
@@ -135,6 +136,7 @@ export default function ThreadPage({ post, index, onBack, onJoin, onSavePart, in
   }
 
     function toggleSave(part) {
+        if (guest) { onNeedLogin(); return }
         if (saved.includes(part.id)) {
             setSaved((prev) => prev.filter((x) => x !== part.id))
         } else {
@@ -144,6 +146,7 @@ export default function ThreadPage({ post, index, onBack, onJoin, onSavePart, in
     }
 
     async function handleComment() {
+        if (guest) { onNeedLogin(); return }
         if (!comment.trim()) return
         setSending(true)
         try {
@@ -289,7 +292,14 @@ export default function ThreadPage({ post, index, onBack, onJoin, onSavePart, in
             </div>
 
             <div className="px-4 pt-4">
-
+                {guest && (
+                    <div
+                        className="mb-4 rounded-2xl px-4 py-3 text-xs font-bold"
+                        style={{ background: 'rgba(255,255,255,0.85)', color: '#4a78d4' }}
+                    >
+                        登録なしで聴けます。気に入ったら、登録して、一緒にセッションしよう
+                    </div>
+                )}
                 {/* 元音源カード */}
                 <div
                     className="mb-4 p-4"
@@ -676,7 +686,10 @@ export default function ThreadPage({ post, index, onBack, onJoin, onSavePart, in
                 style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 50%)' }}
             >
                 <button
-                    onClick={() => onJoin({ ...post, audioUrl: thread?.converted_audio_url || thread?.audio_url })}
+                    onClick={() => {
+                        if (guest) { onNeedLogin(); return }
+                        onJoin({ ...post, audioUrl: thread?.converted_audio_url || thread?.audio_url })
+                    }}
                     className="w-full rounded-full py-4 text-base font-black text-white transition hover:opacity-90"
                     style={{
                         background: 'linear-gradient(90deg, #8ab4ff, #f4a6d7)',
@@ -684,7 +697,7 @@ export default function ThreadPage({ post, index, onBack, onJoin, onSavePart, in
                         boxShadow: '0 6px 20px rgba(138,180,255,0.5)',
                     }}
                 >
-                    このセッションに参加する
+                    {guest ? '登録して、セッションに参加する' : 'このセッションに参加する'}
                 </button>
             </div>
 

@@ -92,13 +92,10 @@ function NavIcon({ name, color }) {
           <path d="M6 3h12v18l-6-4-6 4z" />
         </svg>
       )
-    case 'アカウント':
-      return (
-        <svg {...common}>
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
-        </svg>
-      )
+      case 'アカウント':
+        return user ? (
+          <AccountPage user={user} onLogout={handleLogout} onOpenThread={openThread} />
+        ) : null
     default:
       return null
   }
@@ -131,7 +128,7 @@ export default function App() {
       return null
     }
   })
-
+  const guestView = !user && !!getThreadIdFromUrl() && !needLogin
   const [page, setPage]                 = useState('ホーム')
   const [thread, setThread]             = useState(null)
   const [threadIndex, setThreadIndex]   = useState(0)
@@ -142,6 +139,7 @@ export default function App() {
     const [threadTab, setThreadTab] = useState('パート')
     const [themeTitle, setThemeTitle] = useState('')
     const [showNotif, setShowNotif] = useState(false)
+  const [needLogin, setNeedLogin] = useState(false)
       async function openById(id) {
     try {
       const d = await getThread(id)
@@ -165,7 +163,6 @@ export default function App() {
 
   // ログインしたとき、URLに ?t= があれば、その投稿を開く
   useEffect(() => {
-    if (!user) return
     const id = getThreadIdFromUrl()
     if (id) openById(id)
   }, [user])
@@ -173,8 +170,20 @@ export default function App() {
 
   useEffect(() => { if (user) loadAvatars() }, [user])
 
-  if (!user) {
-    return <LoginPage onLogin={(u) => { setUser(u); setPage('ホーム') }} />
+  // ログインしていなくて、リンクで開いた投稿を見る場合は、ログイン画面を出さない
+  if (!user && !guestView) {
+    const hasLink = !!getThreadIdFromUrl()
+    return (
+      <LoginPage
+        notice={needLogin ? '続けるには、ログインまたは登録をしてください' : ''}
+        onBack={hasLink ? () => setNeedLogin(false) : null}
+        onLogin={(u) => {
+          setUser(u)
+          setNeedLogin(false)
+          if (!getThreadIdFromUrl()) setPage('ホーム')
+        }}
+      />
+    )
   }
 
   function handleSavePart(part) {
@@ -210,6 +219,12 @@ export default function App() {
     setPage('ホーム')
   }
 
+  const requireLogin = () => {
+    if (user) return true
+    setNeedLogin(true)
+    return false
+  }
+
   function renderPage() {
     switch (page) {
       case 'ホーム':
@@ -236,10 +251,17 @@ export default function App() {
           <ThreadPage
             post={thread}
             index={threadIndex}
-            onBack={() => { setUrlThread(null); setPage('ホーム'); setJoinThreadId(null) }}
+            onBack={() => {
+              setUrlThread(null)
+              setJoinThreadId(null)
+              if (!user) { setNeedLogin(true); return }
+              setPage('ホーム')
+            }}
             onJoin={joinSession}
             onSavePart={handleSavePart}
             initialTab={threadTab}
+            guest={!user}
+            onNeedLogin={requireLogin}
           />
         )
       case '保存済み':
@@ -296,7 +318,22 @@ export default function App() {
                   className="rounded-full px-3 py-1 text-xs font-bold text-white"
                   style={{ background: ACCENT, fontFamily: "'Nunito', sans-serif" }}
                 >
-                  {user.name}
+                {user ? (
+                  <span
+                    className="rounded-full px-3 py-1 text-xs font-bold text-white"
+                    style={{ background: ACCENT, fontFamily: "'Nunito', sans-serif" }}
+                  >
+                    {user.name}
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => setNeedLogin(true)}
+                    className="rounded-full px-3 py-1 text-xs font-bold text-white"
+                    style={{ background: ACCENT, fontFamily: "'Nunito', sans-serif" }}
+                  >
+                    ログイン
+                  </button>
+                )}
                 </span>
                 <button
                                     onClick={() => setShowNotif(true)}

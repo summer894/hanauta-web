@@ -24,7 +24,7 @@ const INPUT = {
   color: NAVY,
 }
 
-export default function LoginPage({ onLogin }) {
+export default function LoginPage({ onLogin, onBack = null, notice = '' }) {
   const [mode, setMode]         = useState('login')
   const [name, setName]         = useState('')
   const [email, setEmail]       = useState('')
@@ -127,7 +127,14 @@ export default function LoginPage({ onLogin }) {
               鼻歌でつながる音楽コミュニティ
             </p>
           </div>
-
+          {notice && (
+            <div
+              className="mb-4 rounded-2xl px-4 py-3 text-center text-sm font-bold"
+              style={{ background: 'rgba(255,255,255,0.8)', color: '#4a78d4' }}
+            >
+              {notice}
+            </div>
+          )}
           {/* カード */}
           <div
             className="p-6"
@@ -242,6 +249,15 @@ export default function LoginPage({ onLogin }) {
             >
               ゲストとして試す（APIを使わない）
             </button>
+              {onBack && (
+              <button
+                onClick={onBack}
+                className="mt-3 block w-full text-sm font-bold"
+                style={{ color: SUB, ...NUNITO }}
+              >
+                ← 投稿に戻る
+              </button>
+            )}
           </div>
         </div>
       </div>
