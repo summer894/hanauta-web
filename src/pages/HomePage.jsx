@@ -34,7 +34,13 @@ export default function HomePage({ onNavigate, onOpenThread, onTag }) {
   const [error, setError]     = useState('')
 
     const [usingSample, setUsingSample] = useState(false)
+  const [slow, setSlow] = useState(false)
 
+  useEffect(() => {
+    if (!loading) { setSlow(false); return }
+    const t = setTimeout(() => setSlow(true), 4000)
+    return () => clearTimeout(t)
+  }, [loading])
   useEffect(() => {
     async function fetchThreads() {
       try {
@@ -175,7 +181,19 @@ export default function HomePage({ onNavigate, onOpenThread, onTag }) {
           <LineIcon name="alert" size={14} color="#e0457f" />サーバーに接続できないため、サンプルを表示しています
           </div>
         )}
-        {loading && <SkeletonList count={3} />}
+        {loading && (
+          <>
+            {slow && (
+              <div
+                className="mb-3 rounded-xl px-4 py-2 text-xs font-semibold"
+                style={{ background: 'rgba(255,255,255,0.8)', color: '#4a78d4' }}
+              >
+                サーバーを起こしています。初回は1分ほどかかることがあります
+              </div>
+            )}
+            <SkeletonList count={3} />
+          </>
+        )}
 
         {error && !loading && (
           <div className="rounded-2xl bg-white/70 px-4 py-4 text-center text-sm text-red-400">

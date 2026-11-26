@@ -103,6 +103,14 @@ export default function LineIcon({ name, size = 22, color = '#5b8def' }) {
           <path d="M12 10v5M12 18h.01" />
         </svg>
       )
+    case 'share':
+      return (
+        <svg {...p}>
+          <path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" />
+          <path d="M16 6l-4-4-4 4" />
+          <path d="M12 2v13" />
+        </svg>
+      )
     case 'gear':
       return (
         <svg {...p}>

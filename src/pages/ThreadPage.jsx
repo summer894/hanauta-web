@@ -5,6 +5,7 @@ import { SkeletonList } from '../components/Skeleton'
 import LineIcon from '../components/LineIcon'
 import EmptyState from '../components/EmptyState'
 import AudioPlayer from '../components/AudioPlayer'
+import { shareThread } from '../share'
 
 const AVATAR_COLORS = [
     '#f9a8d4', '#93c5fd', '#86efac', '#fcd34d',
@@ -93,7 +94,7 @@ export default function ThreadPage({ post, index, onBack, onJoin, onSavePart, in
   const [tab, setTab]           = useState(initialTab)
     const [comment, setComment] = useState('')
     const [sending, setSending] = useState(false)
-
+    const [copied, setCopied] = useState(false)
     const [mixPlaying, setMixPlaying] = useState(false)
     const [mixError, setMixError] = useState('')
     const mixRef = useRef([])
@@ -274,7 +275,17 @@ export default function ThreadPage({ post, index, onBack, onJoin, onSavePart, in
                 >
                     セッション
                 </span>
-                <button className="text-zinc-300 hover:text-zinc-400" style={{ letterSpacing: '1px' }}>···</button>
+                <button
+                    onClick={async () => {
+                        const r = await shareThread(post.id, thread?.title || post.title)
+                        if (r === 'copied') { setCopied(true); setTimeout(() => setCopied(false), 2000) }
+                    }}
+                    className="flex h-9 flex-shrink-0 items-center justify-center rounded-full px-2 text-xs font-bold"
+                    style={{ background: 'rgba(127,178,255,0.15)', color: '#4a78d4' }}
+                    aria-label="共有"
+                >
+                    {copied ? 'コピーしました' : <LineIcon name="share" size={18} color="#4a78d4" />}
+                </button>
             </div>
 
             <div className="px-4 pt-4">

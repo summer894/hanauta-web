@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import UserAvatar from './UserAvatar'
 import LineIcon from './LineIcon'
+import { shareThread } from '../share'
 
 const NAVY = '#27407f'
 const NUNITO = { fontFamily: "'Nunito', sans-serif" }
@@ -91,7 +92,7 @@ function ShareIcon() {
 
 export default function PostCard({ post, onOpen, onTag }) {
   const [liked, setLiked] = useState(false)
-
+  const [copied, setCopied] = useState(false)
   const allUsers = [
     post.user,
     ...(post.parts?.map((p) => p.user) || []),
@@ -200,8 +201,16 @@ export default function PostCard({ post, onOpen, onTag }) {
             <CommentIcon />
             {post.commentCount || 0}
           </button>
-          <button onClick={(e) => e.stopPropagation()} className="flex items-center">
-            <ShareIcon />
+          <button
+            onClick={async (e) => {
+              e.stopPropagation()
+              if (post.sample) return
+              const r = await shareThread(post.id, post.title)
+              if (r === 'copied') { setCopied(true); setTimeout(() => setCopied(false), 2000) }
+            }}
+            className="flex items-center text-xs font-semibold"
+          >
+            {copied ? 'コピーしました' : <ShareIcon />}
           </button>
           <span className="ml-auto text-base tracking-widest" style={{ color: '#b8c1dc' }}>···</span>
         </div>

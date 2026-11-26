@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getToken, removeToken } from './api'
+import { getToken, removeToken, getThread } from './api'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import RecordPage from './pages/RecordPage'
@@ -111,7 +111,15 @@ const NAV = [
   { name: '保存済み' },
   { name: 'アカウント' },
 ]
+const getThreadIdFromUrl = () => {
+  const n = Number(new URLSearchParams(window.location.search).get('t'))
+  return Number.isInteger(n) && n > 0 ? n : null
+}
 
+const setUrlThread = (id) => {
+  const url = id ? `${window.location.pathname}?t=${id}` : window.location.pathname
+  window.history.replaceState({}, '', url)
+}
 export default function App() {
   const [user, setUser] = useState(() => {
     const token = getToken()
@@ -134,6 +142,33 @@ export default function App() {
     const [threadTab, setThreadTab] = useState('パート')
     const [themeTitle, setThemeTitle] = useState('')
     const [showNotif, setShowNotif] = useState(false)
+      async function openById(id) {
+    try {
+      const d = await getThread(id)
+      const t = d.thread
+      setThread({
+        id: t.id,
+        user: t.username,
+        title: t.title,
+        instrument: t.instrument || 'Guitar',
+        genre: 'Session',
+        theme: t.theme || null,
+        wantedParts: ['参加者募集中'],
+        parts: [],
+      })
+      setThreadTab('パート')
+      setPage('スレッド')
+    } catch {
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }
+
+  // ログインしたとき、URLに ?t= があれば、その投稿を開く
+  useEffect(() => {
+    if (!user) return
+    const id = getThreadIdFromUrl()
+    if (id) openById(id)
+  }, [user])
   const [searchWord, setSearchWord] = useState('')
 
   useEffect(() => { if (user) loadAvatars() }, [user])
@@ -154,6 +189,7 @@ export default function App() {
     setThread(post)
     setThreadIndex(index)
     setThreadTab(tab)
+    setUrlThread(post.id)
     setPage('スレッド')
   }
 
@@ -200,7 +236,7 @@ export default function App() {
           <ThreadPage
             post={thread}
             index={threadIndex}
-            onBack={() => { setPage('ホーム'); setJoinThreadId(null) }}
+            onBack={() => { setUrlThread(null); setPage('ホーム'); setJoinThreadId(null) }}
             onJoin={joinSession}
             onSavePart={handleSavePart}
             initialTab={threadTab}
@@ -306,7 +342,7 @@ export default function App() {
                 return (
                   <button
                     key={item.name}
-                    onClick={() => { setJoinThreadId(null); if (item.name === '探す') setSearchWord(''); setPage(item.name) }}
+                    onClick={() => {setUrlThread(null); setJoinThreadId(null); if (item.name === '探す') setSearchWord(''); setPage(item.name) }}
                     className="relative flex flex-col items-center justify-center gap-0.5"
                     style={{ fontFamily: "'Nunito', sans-serif" }}
                   >
